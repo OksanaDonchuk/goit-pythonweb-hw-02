@@ -1,0 +1,35 @@
+services:
+  hw2_db:
+    image: postgres:15
+    container_name: hw2_db
+    restart: always
+    environment:
+      POSTGRES_DB: hw02
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 567234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  hw2_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hw2_app
+    restart: always
+    depends_on:
+      - hw2_db
+    environment:
+      DATABASE_URL: "postgresql+psycopg2://postgres:567234@hw2_db:5432/hw02"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000 || exit 1"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+volumes:
+  postgres_data:
